@@ -1,233 +1,299 @@
-#include "sources/BinaryTree.hpp"
+//
+// Created by david on 14/05/2021.
+//
+
+#include <ostream>
+#include <set>
+#include <tuple>
+
+#include "BinaryTree.hpp"
 #include "doctest.h"
-#include <iostream>
-#include <string>
-#include <fstream>
 
 using namespace ariel;
 using namespace std;
 
-BinaryTree<int> bt;
-void init_tree();
-/*********************************************************************/
-/*                         Int Binary Tree                           */
-/*********************************************************************/
-TEST_CASE ("add root & left & right") {
-    BinaryTree<int> ibt;
-    CHECK_NOTHROW(ibt.add_root(1).add_left(1, 2).add_right(1,3));
-    CHECK_NOTHROW(ibt.add_root(11).add_root(12).add_root(13).add_root(14));
-    CHECK_EQ(*(ibt.begin()), 14);
-    CHECK_NE(*(ibt.begin()), 1);
-    CHECK_THROWS(ibt.add_left('a', 'b'));
-    CHECK_THROWS(ibt.add_left(2, 4).add_right(4, 'c').add_left('c', 'd'));
-}
+void preorder(size_t index, vector<int> &tree, vector<int> &pre);
 
-TEST_CASE ("inorder traversal") {
-    init_tree();
-    string expected = "8 4 9 12 2 5 1 6 3 13 10 7 11 ";
-    string actual = "";
+void inorder(size_t index, vector<int> &tree, vector<int> &in);
 
-    for (auto it = bt.begin_inorder(); it != bt.end_inorder(); it ++) {
-            actual += to_string(*it) + " ";
+void postorder(size_t index, vector<int> &tree, vector<int> &post);
+
+TEST_CASE("print") {
+    BinaryTree<int> bt;
+    bt.add_root(0);
+    for (int i = 1; i < 50; ++i) {
+        int r = rand() % 2;
+        int prev = (rand() % i);
+        try {
+            if (r == 1) {
+                bt.add_right(prev, i);
+            } else {
+                bt.add_left(prev, i);
+            }
+        } catch (exception &e) {
+            continue;
+        }
     }
-    
-    CHECK_EQ(actual, expected);
+    cout << bt << endl;
+}
 
-    string actual_default = "";
-    for (auto it = bt.begin(); it != bt.end(); it ++) {
-            actual += to_string(*it) + " ";
+class MyInt {
+    int x;
+
+   public:
+    MyInt(int x) : x(x) {}
+
+    bool operator==(const MyInt &rhs) const { return x == rhs.x; }
+
+    friend ostream &operator<<(ostream &os, const MyInt &anInt) {
+        return (os << anInt.x);
     }
-    
-    CHECK_EQ(actual, expected);
-}
-
-TEST_CASE ("preorder traversal") {
-    init_tree();
-    string expected = "1 2 4 8 9 12 5 3 6 7 10 15 11 ";
-    string actual = "";
-
-    for (auto it = bt.begin_preorder(); it != bt.end_preorder(); it ++) {
-            actual += to_string(*it) + " ";
-    }
-    
-    CHECK_EQ(actual, expected);
-}
-
-TEST_CASE ("postorder traversal") {
-    init_tree();
-    string expected = "8 12 9 4 5 2 6 13 10 11 7 3 1 ";
-    string actual = "";
-
-    for (auto it = bt.begin_postorder(); it != bt.end_postorder(); it ++) {
-            actual += to_string(*it) + " ";
-    }
-    
-    CHECK_EQ(actual, expected);
-}
-
-TEST_CASE ("Iterator") {
-    init_tree();
-    auto in_it = bt.begin_inorder();
-    auto pr_it = bt.begin_preorder();
-    auto po_it = bt.begin_postorder();
-
-    CHECK(*in_it == 8);
-    CHECK(*pr_it == 1);
-    CHECK(*po_it== 8);
-
-    CHECK(*(in_it++) == 8);
-    CHECK(*(in_it) == 4);
-    CHECK(*(++in_it) == 9);
-
-    CHECK(*(pr_it++) == 1);
-    CHECK(*(pr_it) == 2);
-    CHECK(*(++pr_it) == 4);
-
-    CHECK(*(po_it++) == 8);
-    CHECK(*(po_it) == 12);
-    CHECK(*(++po_it) == 9);
-}
-    
-/**              1
- *              / \
- *             2   3
- *            / \ / \
- *           4  5 6  7
- *          / \     / \
- *         8   9   10 11
- *              \  /
- *             12 13
- **/
-
-void init_tree(){
-     bt.add_root(1).add_left(1,2).add_right(1,3)
-     .add_left(2,4).add_right(2,5).add_left(3,6).add_right(3,7)
-     .add_left(4,8).add_right(4,9).add_left(7,10).add_right(7,11)
-     .add_right(9,12).add_left(10,13);
-}
-
-
-class Person{
-public:
-    const string name;
-    int age;
-    Person(string n, int a) : name(n), age(a){};
-    Person& operator=(const Person& other){
-        return *this;
-    }
-    bool operator==(const Person &p) const{return name == p.name && age == p.age;};
-    bool operator!=(const Person &p) const{return !(*this==p);};
-    // friend std::ostream &operator<<(std::ostream &os, const Person &p){
-    //     return os << p.name << std::endl;
-    // }
 };
 
-BinaryTree<Person> person_bt;
-void init_person_tree();
-/*********************************************************************/
-/*                       Person Binary Tree                          */
-/*********************************************************************/
-TEST_CASE ("add root & left & right") {
-    BinaryTree<Person> pbt;
-    Person avi{"Avi", 30};
-    Person batia{"Batia", 22};
-    Person chris{"Chris", 12};
-    Person david{"David", 43};
-    Person efrat{"Efrat", 37};
-    Person fatma{"Fatma", 62};
-    Person gadi{"Gadi", 50};
-    Person haim{"Haim", 81};
-    Person itai{"Itai", 25};
-
-    CHECK_NOTHROW(pbt.add_root(avi).add_left(avi, batia).add_right(avi,chris));
-    CHECK_NOTHROW(pbt.add_root(gadi).add_root(haim).add_root(itai));
-    CHECK_EQ(*(pbt.begin()), itai);
-    CHECK_NE(*(pbt.begin()), avi);
-    CHECK_THROWS(pbt.add_left(david, gadi));
-}
-
-TEST_CASE ("inorder traversal") {
-    init_person_tree();
-    string expected = "David Haim Gadi Itai Batia Avi Efrat Chris Fatma ";
-    string actual = "";
-
-    for (auto it = person_bt.begin_inorder(); it != person_bt.end_inorder(); it ++) {
-            actual += (*it).name + " ";
+TEST_CASE("add_root") {
+    for (int i = 0; i < 20; ++i) {
+        BinaryTree<int> bt;
+        int r = rand() % 250;
+        CHECK_NOTHROW(bt.add_root(r));
+        CHECK_EQ(*bt.begin(), r);
+        CHECK_EQ(*bt.begin_inorder(), r);
+        CHECK_EQ(*bt.begin_postorder(), r);
+        CHECK_EQ(*bt.begin_preorder(), r);
     }
-    
-    CHECK_EQ(actual, expected);
 
-    string actual_default = "";
-    for (auto it = person_bt.begin(); it != person_bt.end(); it ++) {
-            actual += (*it).name + " ";
+    for (int i = 0; i < 20; ++i) {
+        BinaryTree<string> bt;
+        int n = rand() % 250;
+        string r = to_string(n);
+        CHECK_NOTHROW(bt.add_root(r));
+        CHECK_EQ(*bt.begin(), r);
+        CHECK_EQ(*bt.begin_inorder(), r);
+        CHECK_EQ(*bt.begin_postorder(), r);
+        CHECK_EQ(*bt.begin_preorder(), r);
     }
-    
-    CHECK_EQ(actual, expected);
-}
-
-TEST_CASE ("preorder traversal") {
-    init_person_tree();
-    string expected = "Avi Batia David Gadi Haim Itai Chris Efrat Fatma ";
-    string actual = "";
-
-    for (auto it = person_bt.begin_preorder(); it != person_bt.end_preorder(); it ++) {
-            actual += (*it).name + " ";
+    for (int i = 0; i < 20; ++i) {
+        BinaryTree<MyInt> bt;
+        int n = rand() % 250;
+        auto r = MyInt(n);
+        CHECK_NOTHROW(bt.add_root(MyInt(n)));
+        CHECK_EQ(*bt.begin(), r);
+        CHECK_EQ(*bt.begin_inorder(), r);
+        CHECK_EQ(*bt.begin_postorder(), r);
+        CHECK_EQ(*bt.begin_preorder(), r);
     }
-    
-    CHECK_EQ(actual, expected);
 }
 
-TEST_CASE ("postorder traversal") {
-    init_person_tree();
-    string expected = "Haim Itai Gadi David Batia Efrat Fatma Chris Avi ";
-    string actual = "";
+TEST_CASE("add_left") {
+    for (int i = 0; i < 10; ++i) {
+        BinaryTree<int> bt;
+        set<int> set;
+        while (set.size() <= 20) {
+            int n = rand() % 250;
+            set.insert(n);
+        }
+        int prev = -1;
+        for (auto i = set.begin(); i != set.end(); ++i) {
+            if (i == set.begin()) {
+                CHECK_NOTHROW(bt.add_root(*i));
+                prev = *i;
+            } else {
+                CHECK_NOTHROW(bt.add_left(prev, *i));
+                prev = *i;
+            }
+        }
+        for (auto [i, j] = tuple{bt.begin_preorder(), set.begin()};
+             i != bt.end_preorder() && j != set.end(); ++i, ++j) {
+            CHECK_EQ(*i, *j);
+        }
 
-    for (auto it = person_bt.begin_postorder(); it != person_bt.end_postorder(); it ++) {
-            actual += (*it).name + " ";
+        for (auto [i, j, k] =
+                 tuple{bt.begin_postorder(), bt.begin_inorder(), set.rbegin()};
+             i != bt.end_postorder() && j != bt.end_inorder() &&
+             k != set.rend();
+             ++i, ++k, ++j) {
+            CHECK_EQ(*i, *k);
+            CHECK_EQ(*j, *k);
+        }
     }
-    
-    CHECK_EQ(actual, expected);
 }
 
-TEST_CASE ("Iterator") {
-    init_person_tree();
-    Person david{"David",43};
-    Person gadi{"Gadi", 50};
-    Person haim{"Haim", 81};
+TEST_CASE("add_right") {
+    for (int t = 0; t < 10; ++t) {
+        BinaryTree<int> bt;
+        set<int> set;
+        while (set.size() <= 20) {
+            int n = rand() % 250;
+            set.insert(n);
+        }
+        int prev = -1;
+        for (auto i = set.begin(); i != set.end(); ++i) {
+            if (i == set.begin()) {
+                CHECK_NOTHROW(bt.add_root(*i));
+                prev = *i;
+            } else {
+                CHECK_NOTHROW(bt.add_right(prev, *i));
+                prev = *i;
+            }
+        }
+        for (auto [i, j] = tuple{bt.begin_postorder(), set.rbegin()};
+             i != bt.end_postorder() && j != set.rend(); ++i, ++j) {
+            CHECK_EQ(*i, *j);
+        }
 
-    auto in_it = person_bt.begin();
-    CHECK(*in_it == david);
-    CHECK(*(in_it++) == david);
-    CHECK(*(in_it) == haim);
-    CHECK(*(++in_it) == gadi);
-
-}
-    
-/**             avi
- *              / \
- *          batia chris
- *            /    /   \
- *         david efrat fatma
- *            \    
- *           gadi
- *           /  \
- *         haim itai
- **/
-
-void init_person_tree(){
-    Person avi{"Avi", 30};
-    Person batia{"Batia", 22};
-    Person chris{"Chris", 12};
-    Person david{"David", 43};
-    Person efrat{"Efrat", 37};
-    Person fatma{"Fatma", 62};
-    Person gadi{"Gadi", 50};
-    Person haim{"Haim", 81};
-    Person itai{"Itai", 25};
-     person_bt.add_root(avi).add_left(avi,batia).add_right(avi,chris)
-     .add_left(batia,david).add_left(chris, efrat).add_right(chris,fatma)
-     .add_right(david,gadi).add_left(gadi,haim).add_right(gadi,itai);
+        for (auto [i, j, k] =
+                 tuple{bt.begin_preorder(), bt.begin_inorder(), set.begin()};
+             i != bt.end_preorder() && j != bt.end_inorder() && k != set.end();
+             ++i, ++k, ++j) {
+            CHECK_EQ(*i, *k);
+            CHECK_EQ(*j, *k);
+        }
+    }
 }
 
+TEST_CASE("Big tree") {
+    BinaryTree<int> bt;
+    bt.add_root(0);
+    for (int i = 0; i < 5000; ++i) {
+        if (i % 2 == 0) {
+            bt.add_right(i, i + 1);
+        } else {
+            bt.add_left(i, i + 1);
+        }
+    }
+}
 
+TEST_CASE("Not existing values") {
+    BinaryTree<int> bt;
+    bt.add_root(0);
+    // create tree with some nodes
+    for (int i = 0; i < 15; ++i) {
+        if (i % 2 == 0) {
+            CHECK_NOTHROW(bt.add_right(i, i + 1));
+        } else {
+            CHECK_NOTHROW(bt.add_left(i, i + 1));
+        }
+    }
+    // range of int not in the tree
+    for (int i = 20; i < 40; ++i) {
+        if (i % 2 == 0) {
+            CHECK_THROWS(bt.add_right(i, i + 1));
+        } else {
+            CHECK_THROWS(bt.add_left(i, i + 1));
+        }
+    }
+}
 
+TEST_CASE("Iterators simple") {
+    SUBCASE("==") {
+        BinaryTree<int> bt;
+        bt.add_root(0).add_left(0, 1);
+        auto it1 = bt.begin();
+        auto it2 = bt.begin_postorder();
+        auto it3 = bt.begin_inorder();
+        auto it4 = bt.begin_preorder();
+        CHECK(it1 == it3);
+        CHECK(it1 == it2);
+        CHECK(it2 != it4);
+    }
+    SUBCASE("++") {
+        BinaryTree<int> bt;
+        bt.add_root(0).add_left(0, 1).add_right(0, 2);
+        auto it1 = bt.begin();
+        auto it2 = bt.begin_postorder();
+        auto it3 = bt.begin_inorder();
+        auto it4 = bt.begin_preorder();
+
+        CHECK(*it1 == 1);
+        CHECK(*it3 == 1);
+        CHECK_NOTHROW(++it1);
+        CHECK_NOTHROW(++it3);
+        CHECK_EQ(*it1, 0);
+        CHECK_EQ(*it3, 0);
+        CHECK_NOTHROW(it1++);
+        CHECK_NOTHROW(it3++);
+        CHECK(*it1 == 2);
+        CHECK(*it3 == 2);
+    }
+}
+
+TEST_CASE("Iterators") {
+    for (int k = 0; k < 30; ++k) {
+        // create tree & vector tree:
+        size_t size = rand() % 200;
+        vector<int> tree;
+        tree.reserve(size);
+        for (int i = 0; i < size; ++i) {
+            tree.push_back(i);
+        }
+        BinaryTree<int> bt;
+        bt.add_root(0);
+        for (size_t i = 0; i < size / 2; ++i) {
+            if (2 * i + 1 < size) {
+                bt.add_left((int)i, tree.at(2 * i + 1));
+            }
+            if (2 * i + 2 < size) {
+                bt.add_right((int)i, tree.at(2 * i + 2));
+            }
+        }
+        // fill orders vectors
+        vector<int> pre, in, post;
+        preorder(0, tree, pre);
+        inorder(0, tree, in);
+        postorder(0, tree, post);
+
+        // checks all orders:
+        for (auto [i, j] = tuple{bt.begin_preorder(), (size_t)0};
+             i != bt.end_preorder(); ++i, ++j) {
+            CHECK_EQ(*i, pre[j]);
+        }
+        for (auto [i, j] = tuple{bt.begin_inorder(), (size_t)0};
+             i != bt.end_inorder(); ++i, ++j) {
+            CHECK_EQ(*i, in[j]);
+        }
+        for (auto [i, j] = tuple{bt.begin_postorder(), (size_t)0};
+             i != bt.end_postorder(); ++i, ++j) {
+            CHECK_EQ(*i, post[j]);
+        }
+        size_t j = 0;
+        for (int i : bt) {
+            CHECK_EQ(i, in[j++]);
+        }
+    }
+}
+
+TEST_CASE("Copy") {
+    BinaryTree<int> bt;
+    bt.add_root(0).add_left(0, 1).add_right(0, 2).add_left(1, 3);
+    cout << "bt: " << bt;
+    BinaryTree<int> copy{bt};
+    cout << "copy: " << copy;
+    BinaryTree<int> bt1;
+    bt1.add_root(10).add_left(10, 5);
+    cout << "bt1: " << bt1;
+    bt1 = bt;
+    cout << "bt1: " << bt1;
+}
+
+void preorder(size_t index, vector<int> &tree, vector<int> &pre) {
+    if (index >= 0 && index < tree.size()) {
+        pre.push_back(tree[index]);
+        preorder(index * 2 + 1, tree, pre);
+        preorder(index * 2 + 2, tree, pre);
+    }
+}
+
+void inorder(size_t index, vector<int> &tree, vector<int> &in) {
+    if (index >= 0 && index < tree.size()) {
+        inorder(index * 2 + 1, tree, in);
+        in.push_back(tree[index]);
+        inorder(index * 2 + 2, tree, in);
+    }
+}
+
+void postorder(size_t index, vector<int> &tree, vector<int> &post) {
+    if (index >= 0 && index < tree.size()) {
+        postorder(index * 2 + 1, tree, post);
+        postorder(index * 2 + 2, tree, post);
+        post.push_back(tree[index]);
+    }
+}
