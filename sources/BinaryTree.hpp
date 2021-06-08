@@ -38,21 +38,38 @@ namespace ariel {
             std::vector<Node*> order_by;
 
             void fill_vec_by_order(Order order, Node* n){
-                if(n != nullptr){
-                    if(order == pre_order) {
-                        order_by.push_back(n); 
-                    }
-                    fill_vec_by_order(order, n->left);
-                    if(order == in_order) {
-                        order_by.push_back(n); 
-                    }
-                    fill_vec_by_order(order, n->right);
-                    if(order == post_order) {
-                        order_by.push_back(n); 
-                    }
-                }
+                if(order == pre_order) { fill_pre_order(n); }
+                if(order == in_order) { fill_in_order(n); }
+                if(order == post_order) { fill_post_order(n); }
             }
 
+            void fill_pre_order(Node* n){
+                if(n == nullptr){
+                    return;
+                }
+                order_by.push_back(n); 
+                fill_pre_order(n->left);
+                fill_pre_order(n->right);
+            }
+
+            void fill_in_order(Node* n){
+                if(n == nullptr){
+                    return;
+                }
+                fill_in_order(n->left);
+                order_by.push_back(n); 
+                fill_in_order(n->right);
+            }
+
+            void fill_post_order(Node* n){
+                if(n == nullptr){
+                    return;
+                }
+                fill_post_order(n->left);
+                fill_post_order(n->right);
+                order_by.push_back(n); 
+            }
+            
             public:
                 Iterator(Node* n, Order order) : current_index(0) {
                     fill_vec_by_order(order, n); 
