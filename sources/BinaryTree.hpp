@@ -37,16 +37,16 @@ namespace ariel {
             uint current_index;
             std::vector<Node*> order_by;
 
-            void fill_by_order(Order order, Node* n){
+            void fill_vec_by_order(Order order, Node* n){
                 if(n != nullptr){
                     if(order == pre_order) {
                         order_by.push_back(n); 
                     }
-                    fill_by_order(order, n->left);
+                    fill_vec_by_order(order, n->left);
                     if(order == in_order) {
                         order_by.push_back(n); 
                     }
-                    fill_by_order(order, n->right);
+                    fill_vec_by_order(order, n->right);
                     if(order == post_order) {
                         order_by.push_back(n); 
                     }
@@ -55,7 +55,7 @@ namespace ariel {
 
             public:
                 Iterator(Node* n, Order order) : current_index(0) {
-                    fill_by_order(order, n); 
+                    fill_vec_by_order(order, n); 
                     order_by.push_back(nullptr);
                     order_by.push_back(nullptr);
                     order_by.push_back(nullptr);
@@ -102,14 +102,6 @@ namespace ariel {
             return find_left;
         }
 
-        void free_all(Node* n){
-            if(n != nullptr) {
-                free_all(n->right);
-                free_all(n->left);
-                delete n;
-            }
-        }
-
         public:
             BinaryTree() : root(nullptr){}
 
@@ -121,7 +113,7 @@ namespace ariel {
             }
 
             ~BinaryTree() {
-                free_all(root);
+                delete root;
             }
 
             BinaryTree& operator=(BinaryTree&& other) noexcept {
