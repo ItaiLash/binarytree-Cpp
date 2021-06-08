@@ -34,7 +34,7 @@ namespace ariel {
 
     //--------------------Iterator Class-------------------//
         class Iterator {
-            uint current;
+            uint current_index;
             std::vector<Node*> order_by;
 
             void fill_by_order(Order order, Node* n){
@@ -52,9 +52,9 @@ namespace ariel {
                     }
                 }
             }
-            
+
             public:
-                Iterator(Order order, Node* n) : current(0) {
+                Iterator(Node* n, Order order) : current_index(0) {
                     fill_by_order(order, n); 
                     order_by.push_back(nullptr);
                     order_by.push_back(nullptr);
@@ -62,26 +62,26 @@ namespace ariel {
                 }
 
                 Iterator& operator++() {
-                     current++; 
-                     return *this;
+                    current_index++; 
+                    return *this;
                 }
 
                 Iterator operator++(int) {
-                     Iterator itr = *this; 
-                     current++; 
-                     return itr;
+                    Iterator itr = *this; 
+                    current_index++; 
+                    return itr;
                 }
 
                 T& operator*() const {
-                     return order_by.at(current)->value; 
+                    return order_by[current_index]->value; 
                 }
 
                 T* operator->() const {
-                     return &(order_by.at(current)->value); 
+                    return &(order_by[current_index]->value); 
                 }
 
                 bool operator==(Iterator const &other) const {
-                     return order_by.at(current) == other.order_by.at(other.current); 
+                    return order_by[current_index] == other.order_by[other.current_index]; 
                 }
 
                 bool operator!=(Iterator const &other) const { 
@@ -181,12 +181,12 @@ namespace ariel {
                 return os << "my binary tree" << std::endl;
             }
 
-            Iterator begin_preorder() { return Iterator(Order::pre_order, root); }
-            Iterator end_preorder() { return Iterator(Order::pre_order, nullptr); }
-            Iterator begin_inorder() { return Iterator(Order::in_order, root);}
-            Iterator end_inorder() { return Iterator(Order::in_order, nullptr);}
-            Iterator begin_postorder(){ return Iterator(Order::post_order, root); }
-            Iterator end_postorder(){ return Iterator(Order::post_order, nullptr);}
+            Iterator begin_preorder() { return Iterator(root, Order::pre_order); }
+            Iterator end_preorder() { return Iterator(nullptr, Order::pre_order); }
+            Iterator begin_inorder() { return Iterator(root, Order::in_order);}
+            Iterator end_inorder() { return Iterator(nullptr, Order::in_order);}
+            Iterator begin_postorder(){ return Iterator(root, Order::post_order); }
+            Iterator end_postorder(){ return Iterator(nullptr, Order::post_order);}
             Iterator begin(){ return begin_inorder(); }
             Iterator end(){ return end_inorder(); }
     };
